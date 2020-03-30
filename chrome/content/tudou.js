@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 - 2016  Bo Zhu  http://zhuzhu.org
+ * Copyright (C) 2012 - 2014  Bo Zhu  http://zhuzhu.org
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,28 +15,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*global chrome: false */
+/*jslint browser: true */
 "use strict";
 
-// have to use a callback function
-function get_storage(key, callback) {
-    chrome.storage.sync.get(key, function(items) {
-        if (typeof items !== 'undefined' && items.hasOwnProperty(key)) {
-            callback(items[key]);
-        } else {
-            callback();
-        }
-    });
-}
-
-
-function set_storage(key, value, callback) {
-    var obj = {};
-    obj[key] = value;  // can't just use {key: value}
-    chrome.storage.sync.set(obj, callback);
-}
-
-
-function remove_storage(key, callback) {
-    chrome.storage.sync.remove(key, callback);
-}
+var s = document.createElement('script');
+s.type = 'text/javascript';
+s.innerText = ' \
+    (function() { \
+        var i, list = document.getElementsByTagName("object"); \
+        for (i = 0; i < list.length; i++) { \
+            list[i].innerHTML = list[i].innerHTML.replace("tvcCode=5001", "tvcCode=-1"); \
+        } \
+    }());';
+document.body.appendChild(s);

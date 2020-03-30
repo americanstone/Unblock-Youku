@@ -1,6 +1,5 @@
 /*
- * Allow you smoothly surf on many websites blocking non-mainland visitors.
- * Copyright (C) 2012 Bo Zhu http://zhuzhu.org
+ * Copyright (C) 2012 - 2016  Bo Zhu  http://zhuzhu.org
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -16,50 +15,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-function setup_redirect() {
-    chrome.webRequest.onBeforeRequest.addListener(
-        http_redirector,
-        {
-            urls: unblock_youku.redirect_url_list
-        },
-        ["blocking"]);
-    // addListener ends here
-    console.log('http_redirector is set');
-
-    unblock_youku.backend_server = unblock_youku.default_server;
-
-    console.log('to test the redirection server: ' + unblock_youku.default_server);
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://' + unblock_youku.backend_server + '?url=' + btoa('http://ipservice.163.com/isFromMainland'), true);
-    xhr.timeout = 12000; // 12s
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            clearTimeout(xhr_timer);
-            console.log('the redirection server seems to be working fine: ' + unblock_youku.backend_server);
-        }
-    };
-    xhr.onerror = function(err) {
-        console.warn(unblock_youku.default_server + ' ERROR! changed redirection server to backup_server: ' + unblock_youku.backup_server);
-        _gaq.push(['_trackEvent', 'Redirection Server Error', err.target.status]);
-        unblock_youku.backend_server = unblock_youku.backup_server;  // backup
-        clearTimeout(xhr_timer);
-    };
-    xhr.send();
-
-    var xhr_timer = setTimeout(function() {
-        xhr.abort();
-        console.warn(unblock_youku.default_server + ' TIMEOUT! changed redirection server to backup_server: ' + unblock_youku.backup_server);
-        _gaq.push(['_trackEvent', 'Redirection Server Timeout', unblock_youku.default_server]);
-        unblock_youku.backend_server = unblock_youku.backup_server;  // backup
-    }, 10000);  // 10s
-}
-
-
-function clear_redirect() {
-    chrome.webRequest.onBeforeRequest.removeListener(http_redirector);
-    console.log('http_redirector is removed');
-}
+/*jslint browser: true */
+/*global chrome: false, unblock_youku: false, btoa: false */
+/*global ga_report_error: false, string_starts_with: false */
+"use strict";
 
 
 function http_redirector(details) {
@@ -68,26 +27,142 @@ function http_redirector(details) {
         console.log('directly pass');
         return {};
     }
+    var redirect_url = null;
 
-    // you ku ni yao nao na yang...
-    if (details.url.slice(0, 18) === 'http://v.youku.com' &&
-            details.url.indexOf('timezone') !== -1 && 
-            (details.url.indexOf('timezone/08') === -1 &&
-             details.url.indexOf('timezone/+08') === -1)) { 
-        details.url = details.url.replace(/timezone\/.[^\/]*/gi, 'timezone/+08');
-    } 
-
-    var backend_server;
-    if (typeof localStorage.custom_server === 'undefined') {
-        backend_server = unblock_youku.backend_server;
-    } else {
-        backend_server = localStorage.custom_server;
+    // special treatment for play.baidu
+    if (details.url.slice(0, 41) === 'http://play.baidu.com/data/music/songlink') {
+        redirect_url = 'http://play.baidu.com/data/cloud/songlink' + details.url.slice(41);
+        console.log('redirect url: ' + redirect_url);
+        return {redirectUrl: redirect_url};
     }
 
-    //var redirect_url = 'http://127.0.0.1.xip.io:8080/?url=' + btoa(details.url);
-    //var redirect_url = 'http://uku-test.aws.af.cm/?url=' + btoa(details.url);
-    var redirect_url = 'http://' + backend_server + '?url=' + btoa(details.url);
+    // if (details.url.slice(0, 18) === 'http://v.youku.com') {
+    //     // remove random number to improve cache hitrate
+    //     details.url = details.url.replace(/&ran=[0-9]*|ran=[0-9]*&/gi, '');
+    // } else if (details.url.slice(0, 23) === 'http://hot.vrs.sohu.com') {
+    //     details.url = details.url.replace(/&t=0\.[0-9]*|t=0\.[0-9]*&/gi, '');
+    // } else if (details.url.slice(0, 23) === 'http://hot.vrs.letv.com') {
+    //     details.url = details.url.replace(/&tn=0\.[0-9]*|tn=0\.[0-9]*&/gi, '');
+    // }
+
+    var backend_server;
+    if (typeof localStorage.custom_redirect_server === 'undefined') {
+        backend_server = unblock_youku.actual_redirect_server;
+    } else {
+        backend_server = localStorage.custom_redirect_server;
+    }
+
+    //var redirect_url = 'http://127.0.0.1.xip.io:8080/?url=' + urlsafe_b64encode(details.url);
+    if (string_starts_with(details.url, 'http://')) {
+        redirect_url = 'http://' + backend_server + '/http/' + details.url.substring('http://'.length);
+    } else if (string_starts_with(details.url, 'https://')) {
+        redirect_url = 'http://' + backend_server + '/https/' + details.url.substring('https://'.length);
+    }
     console.log('redirect url: ' + redirect_url);
 
+    if (redirect_url !== null) {
+        return {redirectUrl: redirect_url};
+    }
+    return {};
+}
+
+
+function check_redirect_server(server_addr, success_callback, failure_callback) {
+    console.log('to test the redirection server: ' + server_addr);
+    var xhr = new XMLHttpRequest();
+
+    var xhr_timer = setTimeout(function() {
+        xhr.abort();
+        console.warn(server_addr + ' TIMEOUT!');
+        failure_callback('Timeout');
+    }, 10000);  // 10s
+
+    xhr.open('GET', 'http://' + server_addr.match(/^(.[^\/]+)/)[1] + '/status', true);
+    xhr.timeout = 12000; // 12s
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if ((xhr.status === 200 || xhr.status === 304) 
+                    && xhr.responseText.indexOf('OK') !== -1) {
+                clearTimeout(xhr_timer);
+                success_callback();
+            } else {
+                clearTimeout(xhr_timer);
+                failure_callback('Wrong Status: [' + xhr.status + '] ' + xhr.responseText);
+            }
+        }
+    };
+    xhr.onerror = function(err) {
+        console.warn(server_addr + ' ERROR!');
+        clearTimeout(xhr_timer);
+        failure_callback(JSON.stringify(err));
+    };
+    xhr.send();
+}
+
+
+function setup_redirect() {
+    if (!chrome.webRequest.onBeforeRequest.hasListener(http_redirector)) {
+        chrome.webRequest.onBeforeRequest.addListener(
+            http_redirector,
+            {
+                urls: unblock_youku.redirect_urls
+            },
+            ["blocking"]
+        );
+        console.log('http_redirector is set');
+    } else {
+        var err_msg = 'http_redirector is already there!';
+        console.error(err_msg);
+        ga_report_error('Unexpected Error', err_msg);
+    }
+
+    unblock_youku.actual_redirect_server = unblock_youku.default_redirect_server;
+    check_redirect_server(unblock_youku.actual_redirect_server, function() {
+        console.log('default_redirect_server seems to be working fine: ' + unblock_youku.actual_redirect_server);
+    }, function(err_msg) {
+        unblock_youku.actual_redirect_server = unblock_youku.backup_redirect_server;
+        console.warn('default_redirect_server error: ' + err_msg);
+        console.warn('changed to backup_redirect_server: ' + unblock_youku.actual_redirect_server);
+        ga_report_error('Redirect Server Error', unblock_youku.default_redirect_server + ': ' + err_msg);
+    });
+}
+
+
+function clear_redirect() {
+    if (chrome.webRequest.onBeforeRequest.hasListener(http_redirector)) {
+        chrome.webRequest.onBeforeRequest.removeListener(http_redirector);
+        console.log('http_redirector is removed');
+    } else {
+        var err_msg = 'http_redirector is not there!';
+        console.error(err_msg);
+        ga_report_error('Unexpected Error', err_msg);
+    }
+}
+
+
+// extra sites to redirect
+/*
+function extra_http_redirector(details) {
+    var redirect_url = 'http://117.27.241.117/' + details.url.replace(/^.*\/\/[^\/]+/, '');
+    console.log('redirect url: ' + redirect_url);
     return {redirectUrl: redirect_url};
 }
+
+function setup_extra_redirector() {
+    if (!chrome.webRequest.onBeforeRequest.hasListener(extra_http_redirector)) {
+        chrome.webRequest.onBeforeRequest.addListener(
+            extra_http_redirector,
+            {
+                urls: ['http://*.music.126.net/*']
+            },
+            ["blocking"]
+        );
+        console.log('extra_http_redirector is set');
+    } else {
+        var err_msg = 'extra_http_redirector is already there!';
+        console.error(err_msg);
+        ga_report_error('Unexpected Error', err_msg);
+    }
+}
+*/
+

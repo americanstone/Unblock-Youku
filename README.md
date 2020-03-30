@@ -1,35 +1,19 @@
 # Unblock Youku
 
-This project contains three-fold functionalities.
+This project contains two parts (closely related with shared JavaScript code).
 
-1. _A Google Chrome extension_ for smoothly surfing on many websites blocking visitors outside mainland China.
-   
-   You can find this extension on Chrome Web Store at [http://ub.uku.im/chrome](http://ub.uku.im/chrome)
+1. A _Google Chrome extension_ helping users access their web services while travelling outside mainland China. You can find this extension on Chrome Web Store at [http://uku.im/chrome](http://uku.im/chrome).
 
-2. _A local proxy server_ based on the non-blocking [Node.js](http://nodejs.org) for bypassing the mainland restriction _for other browsers and mobile devices_ (but not guaranteed).
-
-   For more information, please see [the instructions](http://ub.uku.im/proxy) (in Chinese).
-
-3. _A backend server_ to support the redirection mode of the Chrome extension.
+2. A Node.js based _backend server_ that supports the redirect mode of the Chrome extension. [![Build Status](https://travis-ci.org/uku/Unblock-Youku.svg?branch=master)](https://travis-ci.org/uku/Unblock-Youku) [![Dependency Status](https://gemnasium.com/badges/github.com/uku/Unblock-Youku.svg)](https://gemnasium.com/github.com/uku/Unblock-Youku)
 
 ## Disclaimer
 
-Using/installing this software, you agree that it is only for study purposes and its authors take no responsibilities for any consequences.
+Installing/using the software/service, you agree that the software/service is only for study purposes and its authors and/or service providers take no responsibilities for any consequences.
 
 ## License
 
 The source code is released under [AGPL v3](http://www.gnu.org/licenses/agpl-3.0.html) or (at your option) any later version.
 
-## Translations
-
-We are using [WebTranslateIt](https://webtranslateit.com/en/projects/4902-Unblock-Youku) to manage our translations.
-
-If you are interested in helping us translating some phrases, or you want the extension to be available in additional language(s), [please make a request here](https://webtranslateit.com/en/projects/4902-Unblock-Youku/invitation_request). Any help is appreciated.
-
-[![](https://webtranslateit.com/api/projects/5c5f1fc9841ce33c4e5ec608b59aeecc3bff1511/charts.png)](https://webtranslateit.com/en/projects/4902-Unblock-Youku)
-
 ## Credits
 
-[@whuhacker](https://github.com/whuhacker) - Contributions to many important functionalities and improvements, and Japanese, German and French translations
-
-[Chiara De Liberato](http://www.chiaradeliberato.it/) - Italian and English translations
+Please visit [this page](http://uku.im/contributors) for an updated list of our contributors.

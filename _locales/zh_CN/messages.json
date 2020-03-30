@@ -1,53 +1,56 @@
 {
   "description": {
-    "message": "解除优酷、土豆等网站的仅限大陆地区播放的限制（大陆用户无需安装此扩展）"
+    "message": "帮助海外华人解除优酷、土豆等网站的访问限制（大陆用户无需安装此扩展）"
   },
   "popup_title": {
     "message": "Unblock Youku 设置"
   },
-  "support_title": {
-    "message": "我们需要您的支持"
-  },
-  "support_checkbox_label": {
-    "message": "是的，我愿意支持支持这个软件"
-  },
-  "support_message_no": {
-    "message": "您只需开启这个选项来支持我们，无需其它。您无需付费<br />或捐款，也不会有恼人的植入广告。更多讨论请<a href=\"http://ub.uku.im/viglink\" target=\"_blank\">访问这里</a>"
-  },
-  "support_message_yes": {
-    "message": "非常感谢！您的支持就是我们前进的动力！"
+  "social_title": {
+    "message": "欢迎关注我们"
   },
   "mode_select": {
-    "message": "选择程序运行模式"
+    "message": "程序运行模式"
   },
+  "mode_off": {
+    "message": "关闭模式"
+  },  
   "mode_lite": {
     "message": "精简模式"
   },
   "mode_normal": {
-    "message": "普通模式"
+    "message": "标准模式"
   },
-  "mode_redirect": {
-    "message": "转发模式"
+  "mode_off_description": {
+    "message": "关闭 Unblock Youku 所有功能"
   },
   "mode_lite_description": {
-    "message": "连接速度最快，但只对<abbr title=\"虾米、酷六、迅雷看看\">虾米等个别网站</abbr>起效"
+    "message": "仅对<abbr id=\"tooltip\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"例如 Bilibili\">个别网站</abbr>起效，但可与其它代理程序同时使用"
   },
   "mode_normal_description": {
-    "message": "推荐使用。连接速度较快，支持网站数量最多"
+    "message": "<strong>推荐使用</strong>。连接速度较快，支持网站数量最多"
   },
-  "mode_redirect_description": {
-    "message": "连接速度较慢，但可以与系统代理设置同时使用"
-  },
-  "help": {
-    "message": "关于上述运行模式的详细介绍，<a href=\"http://ub.uku.im/modes\" target=\"_blank\">请点击这里查看</a>"
+  "faq": {
+    "message": "如果您在使用过程中遇到任何问题，<a href=\"http://uku.im/faq\" target=\"_blank\">请查看 FAQ</a>"
   },
   "feedback": {
-    "message": "如遇到问题或有任何建议，<a href=\"http://ub.uku.im/feedback\" target=\"_blank\">欢迎联系我们</a>"
+    "message": "如遇到问题或有任何建议，<a href=\"http://uku.im/feedback\" target=\"_blank\">欢迎联系我们</a>"
   },
   "rating": {
-    "message": "如您觉得这个扩展好用，<a href=\"http://ub.uku.im/reviews\" target=\"_blank\">请帮我们打分</a>"
+    "message": "如您觉得这个扩展好用，<a href=\"http://uku.im/reviews\" target=\"_blank\">请帮我们打分</a>"
   },
   "sharing": {
     "message": "欢迎分享至"
+  },
+  "donation_url": {
+    "message": "https://www.uku.im/index.html"
+  },
+  "support_title": {
+    "message": "我们需要您的支持"
+  },
+  "support_message": {
+    "message": "请帮助 Unblock Youku 长久稳定和免费地运行下去"
+  },
+  "support_button": {
+    "message": "<i class=\"fa fa-heart\" aria-hidden=\"true\"></i> 请支持我们"
   }
 }
